@@ -1,13 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-/*
-init thread
-init pointer holder
-send pointer holder to thread
-store pointer holder
-*/
-
-pub type MyCallback = Option<unsafe extern "C" fn(a: usize, b: usize)>;
+pub type MyCallback = Option<unsafe extern "C" fn(a: i32, b: i32) -> i32>;
 
 #[derive(Clone)]
 struct PointerHolder {
@@ -15,4 +8,12 @@ struct PointerHolder {
 }
 
 #[no_mangle]
-pub extern "C" fn my_function(a: MyCallback) {}
+pub extern "C" fn my_function(a: MyCallback) -> bool {
+    // let ptr = Arc::new(Mutex::new( a ));
+    match a {
+        Some(v) => { println!("Not null"); true },
+        None => { println!("null"); false },
+    }
+}
+
+fn main () { }
