@@ -1,8 +1,18 @@
 [package]
-name = "pointers"
+name = "rust_labview_basic"
 version = "0.1.0"
-edition = "2021"
+authors = ["Jonathan Lindsey <example@example.com>"]
+edition = "2018"
+build = "build.rs" # used to generate C header file
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "rust_labview_basic"
+crate-type = ["cdylib"]
 
 [dependencies]
+libc = "0.2"
+serde = { version = "1.0.150", features = ["derive"] }
+serde_json = "1.0.89"
+
+[build-dependencies]
+cbindgen = "0.13"

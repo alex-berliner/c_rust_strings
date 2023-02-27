@@ -9,7 +9,15 @@ fn add(a: i32, b: i32) -> i32 {
     a + b
 }
 
-fn main() {
+#[no_mangle]
+pub extern "C" fn c_func(f: fn(i32, i32) -> i32) {
+    let p = PointerHolder {
+        ptr: Arc::new(Mutex::new(f)),
+    };
+    todo!()
+}
+
+fn oldmain() {
     let add_ptr = add as fn(i32, i32) -> i32;
     let ph = PointerHolder {
         ptr: Arc::new(Mutex::new(add_ptr)),
