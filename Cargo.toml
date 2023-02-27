@@ -1,12 +1,11 @@
 [package]
-name = "rust_labview_basic"
+name = "testlib"
 version = "0.1.0"
 authors = ["Jonathan Lindsey <example@example.com>"]
 edition = "2018"
-build = "build.rs" # used to generate C header file
 
 [lib]
-name = "rust_labview_basic"
+name = "testlib"
 crate-type = ["cdylib"]
 
 [dependencies]
