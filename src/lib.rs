@@ -17,16 +17,17 @@ pub extern "C" fn ffi_get_string(ffi_handle: Option<Box<FFIDataHandle>>, out: *m
     //     Some(s) => *s,
     //     None => { println!("Pointer was null"); return false }
     // };
-    // let s = "Hello, world!";
-    // let bytes = s.as_bytes();
-    // let len = bytes.len();
-    // // unsafe {
-    // //     std::ptr::copy_nonoverlapping(
-    // //         bytes.as_ptr(),
-    // //         out,
-    // //         len
-    // //     );
-    // // }
+    let s = "Hello, world!";
+    let bytes = s.as_bytes();
+    let len = bytes.len();
+    unsafe {
+        std::ptr::copy_nonoverlapping(
+            bytes.as_ptr(),
+            out,
+            len
+        );
+        std::ptr::write(out.add(len), 0);
+    }
 
     true
 }
