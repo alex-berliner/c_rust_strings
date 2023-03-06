@@ -8,7 +8,7 @@ pub struct FFIDataHandle {
 }
 
 #[no_mangle]
-pub extern "C" fn reg_event_callback(a: EventCallback) -> Box<FFIDataHandle> {
+pub extern "C" fn lib_init(a: EventCallback) -> Box<FFIDataHandle> {
     let ph = FFIDataHandle {
         ptr: Arc::new(Mutex::new(a)),
     };
@@ -16,10 +16,17 @@ pub extern "C" fn reg_event_callback(a: EventCallback) -> Box<FFIDataHandle> {
 }
 
 #[no_mangle]
-pub extern "C" fn poller() {
+pub extern "C" fn poller(h: Option<Box<FFIDataHandle>>) {
+    let d = match h {
+        Some(s) => *s,
+        None => { println!("Pointer was null"); return }
+    };
+    let dt = d.clone();
     std::thread::spawn(move || {
+        let binding = dt.ptr.lock().expect("Couldn't lock");
+        let closure_ref = binding.as_ref().expect("Null pointer");
         loop {
-            println!("polling");
+            let result = unsafe { closure_ref(1, 2) };
             std::thread::sleep(std::time::Duration::from_millis(10));
         }
     }).join().unwrap();
