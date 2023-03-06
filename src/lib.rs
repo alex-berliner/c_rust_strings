@@ -12,11 +12,10 @@ pub struct FFIDataHandle {
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_get_string(ffi_handle: Option<Box<FFIDataHandle>>, out: *mut u8) -> bool {
-    // let d = match ffi_handle {
-    //     Some(s) => *s,
-    //     None => { println!("Pointer was null"); return false }
-    // };
+pub extern "C" fn ffi_get_string(ptr: *mut FFIDataHandle, out: *mut u8) -> bool {
+    if ptr == std::ptr::null_mut() {
+        return false;
+    }
     let s = "Hello, world!";
     let bytes = s.as_bytes();
     let len = bytes.len();
@@ -33,12 +32,12 @@ pub extern "C" fn ffi_get_string(ffi_handle: Option<Box<FFIDataHandle>>, out: *m
 }
 
 #[no_mangle]
-pub extern "C" fn ffi_lib_init(a: EventCallback) -> Box<FFIDataHandle> {
+pub extern "C" fn ffi_lib_init(a: EventCallback) -> *mut FFIDataHandle {
     let ph = FFIDataHandle {
         ptr: Arc::new(Mutex::new(a)),
         data: vec![],
     };
-    Box::new(ph)
+    Box::into_raw(Box::new(ph))
 }
 
 #[no_mangle]
