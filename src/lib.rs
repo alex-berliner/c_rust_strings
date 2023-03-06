@@ -1,32 +1,61 @@
 use std::sync::{Arc, Mutex};
+use std::ffi::CString;
+use libc::{c_char, c_int};
 
-pub type EventCallback = Option<unsafe extern "C" fn(a: i32, b: i32) -> i32>;
+pub type EventCallback = Option<unsafe extern "C" fn(size: i32) -> i32>;
 
+// rust <--> C interop handle
 #[derive(Clone)]
 pub struct FFIDataHandle {
     ptr: Arc<Mutex<EventCallback>>,
+    data: Vec<String>,
 }
 
 #[no_mangle]
-pub extern "C" fn lib_init(a: EventCallback) -> Box<FFIDataHandle> {
+pub extern "C" fn ffi_get_string(ffi_handle: Option<Box<FFIDataHandle>>, out: *mut u8) -> bool {
+    // let d = match ffi_handle {
+    //     Some(s) => *s,
+    //     None => { println!("Pointer was null"); return false }
+    // };
+    // let s = "Hello, world!";
+    // let bytes = s.as_bytes();
+    // let len = bytes.len();
+    // // unsafe {
+    // //     std::ptr::copy_nonoverlapping(
+    // //         bytes.as_ptr(),
+    // //         out,
+    // //         len
+    // //     );
+    // // }
+
+    true
+}
+
+#[no_mangle]
+pub extern "C" fn ffi_lib_init(a: EventCallback) -> Box<FFIDataHandle> {
     let ph = FFIDataHandle {
         ptr: Arc::new(Mutex::new(a)),
+        data: vec![],
     };
     Box::new(ph)
 }
 
 #[no_mangle]
-pub extern "C" fn poller(h: Option<Box<FFIDataHandle>>) {
-    let d = match h {
+pub extern "C" fn poller(ffi_handle: Option<Box<FFIDataHandle>>) {
+    let d = match ffi_handle {
         Some(s) => *s,
         None => { println!("Pointer was null"); return }
     };
     let dt = d.clone();
     std::thread::spawn(move || {
-        let binding = dt.ptr.lock().expect("Couldn't lock");
-        let closure_ref = binding.as_ref().expect("Null pointer");
         loop {
-            let result = unsafe { closure_ref(1, 2) };
+            let binding = dt.ptr.lock().expect("Couldn't lock FFI handle");
+            let closure_ref = binding.as_ref().expect("FFI callback null pointer");
+            let s = "Hello, world!";
+            let bytes = s.as_bytes();
+            let len = bytes.len();
+            let result = unsafe { closure_ref(len as i32) };
+            drop(binding);
             std::thread::sleep(std::time::Duration::from_millis(10));
         }
     }).join().unwrap();

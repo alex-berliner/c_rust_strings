@@ -1,15 +1,21 @@
 #include <stdio.h>
 #include "rustffi.h"
-
-int32_t my_callback(int32_t a, int32_t b) {
-    printf("callback: %d\n", a+b);
+struct FFIDataHandle *h;
+int32_t my_callback(int32_t size) {
+    if (NULL == h) {
+        return -1;
+    }
+    char* string = malloc(sizeof(char) * size);
+    printf("%s null", (NULL == string)?"is":"not");
+    ffi_get_string(h, string);
+    printf("%s null", (NULL == string)?"is":"not");
+    free(string);
 }
 
 int main(void) {
-    struct FFIDataHandle *h = lib_init(my_callback);
-    printf("runned\n");
+    h = ffi_lib_init(my_callback);
     poller(h);
-    while(true) {
+    // while(true) {
 
-    }
+    // }
 }
